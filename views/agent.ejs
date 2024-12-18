@@ -257,22 +257,6 @@
 
 
     <script>
-        const mockEvents = [
-            { 
-                date: '2024-12-10', 
-                customers: [
-                    { id: '1', name: '홍길동', vehicleNumber: '12가1234', expiryDate: '2024-12-10', type: '개인', startDate: '2023-12-10', insuranceCompany: '삼성화재', idNumber: '900101-1234567', contact: '010-1234-5678', vehicle: '소나타', agent: '김대리', premium: '500,000원', driverScope: '본인', coveragePerson1: '10억원', coveragePerson2: '10억원', coverageProperty: '2억원', coverageSelf: '1억원', coverageUninsured: '1억원', coverageCar: '3천만원', emergencyService: 'O', expiryDays: 0 }
-                ] 
-            },
-            { 
-                date: '2024-12-15', 
-                customers: [
-                    { id: '2', name: '김철수', vehicleNumber: '34나5678', expiryDate: '2024-12-15', type: '법인', startDate: '2023-12-15', insuranceCompany: '현대해상', idNumber: '800202-2345678', contact: '010-9876-5432', vehicle: '그랜저', agent: '박팀장', premium: '1,000,000원', driverScope: '가족', coveragePerson1: '20억원', coveragePerson2: '20억원', coverageProperty: '5억원', coverageSelf: '3억원', coverageUninsured: '2억원', coverageCar: '5천만원', emergencyService: 'X', expiryDays: 5 },
-                    { id: '3', name: '이영희', vehicleNumber: '56다7890', expiryDate: '2024-12-15', type: '개인', startDate: '2023-11-15', insuranceCompany: 'DB손해보험', idNumber: '901112-5678901', contact: '010-5678-1234', vehicle: '아반떼', agent: '이대리', premium: '700,000원', driverScope: '가족', coveragePerson1: '15억원', coveragePerson2: '15억원', coverageProperty: '3억원', coverageSelf: '2억원', coverageUninsured: '1억원', coverageCar: '4천만원', emergencyService: 'O', expiryDays: 5 }
-                ] 
-            }
-        ];
-
         const calendar = document.getElementById('calendar');
         const customerList = document.getElementById('customerList');
         const customerListItems = document.getElementById('customerListItems');
