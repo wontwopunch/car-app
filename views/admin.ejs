@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        // 업로드 성공 팝업 메시지 표시
+        window.onload = function() {
+            <% if (uploadMessage) { %>
+                alert('<%= uploadMessage %>');
+            <% } %>
+        };
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <h1>관리자 페이지</h1>
+        <nav>
+            <ul>
+                <li><a href="/logout">로그아웃</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-container">
+        <!-- 설계사 관리 -->
+        <section class="agent-management">
+            <h2>설계사 관리</h2>
+            <form action="/admin/add-agent" method="POST" class="agent-form">
+                <label for="agentName">설계사 이름:</label>
+                <input type="text" id="agentName" name="name" placeholder="설계사 이름 입력" required>
+                
+                <label for="agentId">아이디:</label>
+                <input type="text" id="agentId" name="id" placeholder="설계사 아이디 입력" required>
+                
+                <label for="agentPassword">비밀번호:</label>
+                <input type="password" id="agentPassword" name="password" placeholder="비밀번호 입력" required>
+                
+                <button type="submit">설계사 추가</button>
+            </form>
+
+            <!-- 설계사 목록 -->
+            <div class="agent-list">
+                <h3>등록된 설계사</h3>
+                <ul>
+                    <% agents.forEach(agent => { %>
+                        <li>
+                            <strong>이름:</strong> <%= agent.name %> |
+                            <strong>아이디:</strong> <%= agent.username %>
+                            <!-- 비밀번호 변경 버튼 -->
+                            <form action="/admin/change-password/<%= agent._id %>" method="POST" style="display: inline;">
+                                <input type="password" name="newPassword" placeholder="새 비밀번호 입력" required>
+                                <button type="submit">비밀번호 변경</button>
+                            </form>
+                            <!-- 삭제 버튼 -->
+                            <form action="/admin/delete-agent/<%= agent._id %>" method="POST" style="display: inline;">
+                                <button type="submit" onclick="return confirm('정말 삭제하시겠습니까?')">삭제</button>
+                            </form>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 엑셀 업로드 -->
+        <section class="excel-upload">
+            <h2>엑셀 업로드</h2>
+            <form action="/admin/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+                <label for="excelFile">엑셀 파일 선택:</label>
+                <input type="file" id="excelFile" name="file" accept=".xlsx, .xls" required>
+                <button type="submit">업로드</button>
+            </form>
+        </section>
+
+        <!-- 푸쉬 알림 설정 -->
+        <section class="push-notification">
+            <h2>푸쉬 알림 설정</h2>
+            <form action="/admin/set-push" method="POST" class="push-form">
+                <label for="push30">30일 전 알림:</label>
+                <input type="checkbox" id="push30" name="push30" <%= pushSettings.push30 ? 'checked' : '' %>>
+
+                <label for="push7">7일 전 알림:</label>
+                <input type="checkbox" id="push7" name="push7" <%= pushSettings.push7 ? 'checked' : '' %>>
+
+                <label for="push3">3일 전 알림:</label>
+                <input type="checkbox" id="push3" name="push3" <%= pushSettings.push3 ? 'checked' : '' %>>
+
+                <button type="submit">설정 저장</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

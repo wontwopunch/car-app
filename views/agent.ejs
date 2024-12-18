@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고객 관리 시스템</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+    
+        header {
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+    
+        main {
+            padding: 20px;
+        }
+    
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+    
+        .calendar-nav {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+    
+        .calendar-nav:hover {
+            background-color: #0056b3;
+        }
+    
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            width: 100%;
+            max-width: 344px;
+            margin: 0 auto;
+        }
+    
+        .day-header {
+            font-weight: bold;
+            background-color: #e9ecef;
+            color: #495057;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+        }
+    
+        .calendar-cell {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #fff;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+    
+        .calendar-cell:hover {
+            background-color: #e9ecef;
+        }
+    
+        .customer-list {
+            margin-top: 20px;
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    
+        .customer-list ul {
+            list-style: none;
+            padding: 0;
+        }
+    
+        .customer-list ul li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            transition: all 0.3s ease-in-out;
+        }
+    
+        .customer-list ul li:hover {
+            background-color: #e9ecef;
+        }
+    
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+    
+        .popup h3 {
+            margin-top: 0;
+        }
+    
+        .popup-close {
+            margin-top: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+    
+        .popup-close:hover {
+            background-color: #0056b3;
+        }
+
+        .calendar-cell.has-customers {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+        }
+    
+        @media (max-width: 768px) {
+            .calendar {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+    
+            .calendar-cell {
+                padding: 8px;
+                font-size: 12px;
+            }
+
+            .calendar-cell.has-customers {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            }
+
+            .popup {
+                width: 50%;
+                font-size: 12px;
+            }
+
+            #searchDetails {
+            font-size: 12px;
+            }
+        }
+    
+        @media (max-width: 480px) {
+            .calendar {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+    
+            .calendar-cell {
+                padding: 8px;
+                font-size: 12px;
+            }
+    
+            .calendar-header {
+                align-items: flex-start;
+                font-size: 14px;
+            }
+
+            .popup {
+                width: 50%;
+                font-size: 12px;
+            }
+
+            .calendar-cell.has-customers {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            }
+
+            #searchDetails {
+            font-size: 12px;
+            }
+        }
+    </style>
+    
+</head>
+<body>
+    <header>
+        <h1>고객 관리 시스템</h1>
+    </header>
+    <main>
+        <section>
+            <h2>고객 검색</h2>
+            <form id="searchForm">
+                <input type="text" id="searchInput" placeholder="고객 이름 또는 차량 번호">
+                <button type="submit">검색</button>
+            </form>
+            <div id="searchDetails" class="customer-detail" style="display: none;"></div>
+        </section>
+        <section>
+            <h2>달력</h2>
+            <div class="calendar-header">
+                <button id="prevMonth" class="calendar-nav">이전</button>
+                <span id="calendarTitle"></span>
+                <button id="nextMonth" class="calendar-nav">다음</button>
+            </div>
+            <div id="calendar" class="calendar"></div>
+        </section>
+        
+        <section id="customerList" class="customer-list" style="display: none;">
+            <h3>선택한 날짜의 고객</h3>
+            <ul id="customerListItems"></ul>
+        </section>
+    </main>
+
+    <div id="popup" class="popup">
+        <h3 id="popupCustomerName">고객 세부 정보</h3>
+        <p><strong>구분:</strong> <span id="popupType"></span></p>
+        <p><strong>보험 시작일자:</strong> <span id="popupStartDate"></span></p>
+        <p><strong>보험 만기일자:</strong> <span id="popupEndDate"></span></p>
+        <p><strong>보험회사:</strong> <span id="popupInsuranceCompany"></span></p>
+        <p><strong>고객성함:</strong> <span id="popupCustomerName"></span></p>
+        <p><strong>주민번호:</strong> <span id="popupIdNumber"></span></p>
+        <p><strong>연락처:</strong> <span id="popupContact"></span></p>
+        <p><strong>차량:</strong> <span id="popupVehicle"></span></p>
+        <p><strong>차량번호:</strong> <span id="popupVehicleNumber"></span></p>
+        <p><strong>설계사:</strong> <span id="popupAgent"></span></p>
+        <p><strong>보험료:</strong> <span id="popupPremium"></span></p>
+        <p><strong>운전자범위:</strong> <span id="popupDriverScope"></span></p>
+        <p><strong>대인1:</strong> <span id="popupCoveragePerson1"></span></p>
+        <p><strong>대인2:</strong> <span id="popupCoveragePerson2"></span></p>
+        <p><strong>대물배상:</strong> <span id="popupCoverageProperty"></span></p>
+        <p><strong>자상:</strong> <span id="popupCoverageSelf"></span></p>
+        <p><strong>무보:</strong> <span id="popupCoverageUninsured"></span></p>
+        <p><strong>자차:</strong> <span id="popupCoverageCar"></span></p>
+        <p><strong>긴급출동:</strong> <span id="popupEmergencyService"></span></p>
+        <p><strong>만기일수:</strong> <span id="popupExpiryDays"></span></p>
+        <button id="popupClose" class="popup-close">닫기</button>
+    </div>
+
+
+    <script>
+        const mockEvents = [
+            { 
+                date: '2024-12-10', 
+                customers: [
+                    { id: '1', name: '홍길동', vehicleNumber: '12가1234', expiryDate: '2024-12-10', type: '개인', startDate: '2023-12-10', insuranceCompany: '삼성화재', idNumber: '900101-1234567', contact: '010-1234-5678', vehicle: '소나타', agent: '김대리', premium: '500,000원', driverScope: '본인', coveragePerson1: '10억원', coveragePerson2: '10억원', coverageProperty: '2억원', coverageSelf: '1억원', coverageUninsured: '1억원', coverageCar: '3천만원', emergencyService: 'O', expiryDays: 0 }
+                ] 
+            },
+            { 
+                date: '2024-12-15', 
+                customers: [
+                    { id: '2', name: '김철수', vehicleNumber: '34나5678', expiryDate: '2024-12-15', type: '법인', startDate: '2023-12-15', insuranceCompany: '현대해상', idNumber: '800202-2345678', contact: '010-9876-5432', vehicle: '그랜저', agent: '박팀장', premium: '1,000,000원', driverScope: '가족', coveragePerson1: '20억원', coveragePerson2: '20억원', coverageProperty: '5억원', coverageSelf: '3억원', coverageUninsured: '2억원', coverageCar: '5천만원', emergencyService: 'X', expiryDays: 5 },
+                    { id: '3', name: '이영희', vehicleNumber: '56다7890', expiryDate: '2024-12-15', type: '개인', startDate: '2023-11-15', insuranceCompany: 'DB손해보험', idNumber: '901112-5678901', contact: '010-5678-1234', vehicle: '아반떼', agent: '이대리', premium: '700,000원', driverScope: '가족', coveragePerson1: '15억원', coveragePerson2: '15억원', coverageProperty: '3억원', coverageSelf: '2억원', coverageUninsured: '1억원', coverageCar: '4천만원', emergencyService: 'O', expiryDays: 5 }
+                ] 
+            }
+        ];
+
+        const calendar = document.getElementById('calendar');
+        const customerList = document.getElementById('customerList');
+        const customerListItems = document.getElementById('customerListItems');
+        const searchDetails = document.getElementById('searchDetails');
+        const popup = document.getElementById('popup');
+
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1; // 월은 1부터 시작하도록 설정
+
+        function updateCalendarTitle() {
+            const calendarTitle = document.getElementById('calendarTitle');
+            calendarTitle.textContent = `${currentYear}년 ${currentMonth}월`;
+        }
+
+        function renderCalendar(year, month) {
+            const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+            calendar.innerHTML = ''; // 기존 달력 비우기
+            updateCalendarTitle(); // 년도와 월 업데이트
+
+            // 요일 헤더 추가
+            daysOfWeek.forEach(day => {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-cell day-header';
+                dayCell.textContent = day;
+                calendar.appendChild(dayCell);
+            });
+
+            // 빈 칸 생성
+            const firstDay = new Date(year, month - 1, 1).getDay();
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'calendar-cell';
+                calendar.appendChild(emptyCell);
+            }
+
+            // 날짜 생성
+            const daysInMonth = new Date(year, month, 0).getDate();
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'calendar-cell';
+                cell.textContent = day;
+
+                const currentDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                if (mockEvents.some(event => event.date === currentDate)) {
+                    cell.classList.add('has-customers');
+                    cell.addEventListener('click', () => {
+                        const customers = mockEvents.find(e => e.date === currentDate).customers;
+                        renderCustomerList(customers);
+                    });
+                }
+
+                calendar.appendChild(cell);
+            }
+        }
+
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentMonth -= 1;
+            if (currentMonth === 0) {
+                currentMonth = 12;
+                currentYear -= 1;
+            }
+            renderCalendar(currentYear, currentMonth);
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentMonth += 1;
+            if (currentMonth === 13) {
+                currentMonth = 1;
+                currentYear += 1;
+            }
+            renderCalendar(currentYear, currentMonth);
+        });
+
+        async function fetchCalendarData() {
+            try {
+                const response = await fetch('/agent/calendar-data');
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('설계사 데이터:', data); // 디버깅용
+                    renderCalendar(currentYear, currentMonth, data);
+                } else {
+                    console.error('데이터를 가져오지 못했습니다.');
+                }
+            } catch (err) {
+                console.error('달력 데이터를 가져오는 중 오류:', err);
+            }
+        }
+
+        function renderCustomerList(customers) {
+            customerList.style.display = 'block';
+            customerListItems.innerHTML = customers.map(c => `
+                <li data-id="${c.id}">
+                    <strong>${c.name}</strong>
+                    <p>구분: ${c.type}</p>
+                    <p>보험 시작일자: ${c.startDate}</p>
+                    <p>보험 만기일자: ${c.expiryDate}</p>
+                    <p>보험회사: ${c.insuranceCompany}</p>
+                </li>
+            `).join('');
+
+            document.querySelectorAll('#customerListItems li').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const customer = customers.find(c => c.id === e.target.closest('li').dataset.id);
+                    if (customer) showPopup(customer);
+                });
+            });
+        }
+
+        function showPopup(customer) {
+            document.getElementById('popupType').textContent = customer.type;
+            document.getElementById('popupStartDate').textContent = customer.startDate;
+            document.getElementById('popupEndDate').textContent = customer.expiryDate;
+            document.getElementById('popupInsuranceCompany').textContent = customer.insuranceCompany;
+            document.getElementById('popupCustomerName').textContent = customer.name;
+            document.getElementById('popupIdNumber').textContent = customer.idNumber;
+            document.getElementById('popupContact').textContent = customer.contact;
+            document.getElementById('popupVehicle').textContent = customer.vehicle;
+            document.getElementById('popupVehicleNumber').textContent = customer.vehicleNumber;
+            document.getElementById('popupAgent').textContent = customer.agent;
+            document.getElementById('popupPremium').textContent = customer.premium;
+            document.getElementById('popupDriverScope').textContent = customer.driverScope;
+            document.getElementById('popupCoveragePerson1').textContent = customer.coveragePerson1;
+            document.getElementById('popupCoveragePerson2').textContent = customer.coveragePerson2;
+            document.getElementById('popupCoverageProperty').textContent = customer.coverageProperty;
+            document.getElementById('popupCoverageSelf').textContent = customer.coverageSelf;
+            document.getElementById('popupCoverageUninsured').textContent = customer.coverageUninsured;
+            document.getElementById('popupCoverageCar').textContent = customer.coverageCar;
+            document.getElementById('popupEmergencyService').textContent = customer.emergencyService;
+            document.getElementById('popupExpiryDays').textContent = customer.expiryDays;
+
+            popup.style.display = 'block';
+        }
+
+        document.getElementById('popupClose').addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('searchInput').value;
+            const result = mockEvents.flatMap(e => e.customers).find(c => c.name.includes(query) || c.vehicleNumber.includes(query));
+
+            if (result) {
+                searchDetails.style.display = 'block';
+                searchDetails.innerHTML = `
+                    <p><strong>구분:</strong> ${result.type}</p>
+                    <p><strong>보험 시작일자:</strong> ${result.startDate}</p>
+                    <p><strong>보험 만기일자:</strong> ${result.expiryDate}</p>
+                    <p><strong>보험회사:</strong> ${result.insuranceCompany}</p>
+                    <p><strong>고객성함:</strong> ${result.name}</p>
+                    <p><strong>차량번호:</strong> ${result.vehicleNumber}</p>
+                `;
+            } else {
+                searchDetails.style.display = 'none';
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            if (!e.target.value.trim()) {
+                searchDetails.style.display = 'none';
+            }
+        });
+
+        const today = new Date();
+        renderCalendar(today.getFullYear(), today.getMonth() + 1);
+    </script>
+</body>
+</html>
