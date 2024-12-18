@@ -14,13 +14,19 @@ const agentRoutes = require('./routes/agent');
 const uploadRoutes = require('./routes/upload');
 
 const app = express();
+const logDirectory = path.join(__dirname, 'logs');
+
+// 로그 디렉토리 생성
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+
+// 로그 파일 스트림 생성
+const accessLogStream = fs.createWriteStream(path.join(logDirectory, 'access.log'), { flags: 'a' });
 
 // 환경 변수 검증
 if (!process.env.MONGO_URI || !process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET) {
     console.error('필수 환경 변수가 누락되었습니다. .env 파일 또는 환경 변수를 확인하세요.');
     process.exit(1);
 }
-
 
 // 데이터베이스 연결
 mongoose.connect(process.env.MONGO_URI)
@@ -58,16 +64,16 @@ app.set('view engine', 'ejs');
 // 미들웨어 설정
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 app.use(cors()); // CORS 지원
-app.use(morgan('combined', { stream: accessLogStream }));
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
+
+// 로그 설정
 if (process.env.NODE_ENV === 'production') {
-    const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
     app.use(morgan('combined', { stream: accessLogStream })); // 로그 파일로 기록
 } else {
     app.use(morgan('dev')); // 콘솔에 로그 출력
 }
+
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1d' }));
 
 
 // 세션 설정
