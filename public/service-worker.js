@@ -6,7 +6,8 @@ const CACHE_ASSETS = [
     '/css/style.css',
     '/js/main.js',
     '/images/icons/icon-192x192.png',
-    '/images/icons/badge-72x72.png'
+    '/images/icons/badge-72x72.png',
+    '/images/icons/icon-512x512.png'
 ];
 
 // 설치 이벤트: 캐싱 처리
@@ -54,7 +55,7 @@ self.addEventListener('fetch', (event) => {
             .catch(() => {
                 // 네트워크 실패 시 캐시 반환
                 return caches.match(event.request).then((cachedResponse) => {
-                    return cachedResponse || caches.match('/offline.html');
+                    return cachedResponse || caches.match('/login'); // 홈 경로로 대체
                 });
             })
     );
