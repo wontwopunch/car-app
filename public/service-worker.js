@@ -2,9 +2,9 @@ const CACHE_VERSION = 'v1';
 const CACHE_NAME = `pwa-cache-${CACHE_VERSION}`;
 const CACHE_ASSETS = [
     '/',
+    '/login',
     '/css/style.css',
     '/js/main.js',
-    '/offline.html',
     '/images/icons/icon-192x192.png',
     '/images/icons/badge-72x72.png'
 ];
